@@ -5,12 +5,29 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+include 'TableMaker.php';
+include 'RangedWeapon.php';
 try {
 	$settings = parse_ini_file('settings.ini');
+	$selection = $_GET['weapons'];
+	//TODO if count(selection) == 0
+	$weaponlist = "('" . $selection[0] . "'";
+	for ($i = 1; $i < count($selection); $i++) {
+		$weaponlist .= ",'" . $selection[$i] . "'";
+	}
+	$weaponlist .= ')';
+	
 	$db = new PDO('mysql:host=localhost;dbname=arsenal', $settings['user'], $settings['password']);
-	$statement = $db->query('SELECT name from RangedWeapons ORDER BY name');
+	$statement = $db->query("SELECT * FROM RangedWeapons WHERE name IN " . $weaponlist);
+	$statement->setFetchMode(PDO::FETCH_CLASS, 'RangedWeapon');
 	$weapons = $statement->fetchAll();
+//	$weapons = array();
+//	foreach ($statement as $row) {
+//		$weapons[] = $row;
+//	}
 	unset($db);
+	
+	$maker = new TableMaker($weapons);
 } catch (PDOException $e) {
 	print "Error!: " . $e->getMessage() . "<br/>";
 	die();
@@ -28,15 +45,7 @@ try {
 <body>
 	<div id="page">
 		<div id="content">
-			<form id="rangedform" name="rangedform" method="get" action="compare.php">
-				<select name="weapons[]" size="10" multiple>
-					<?php foreach ($weapons as $weapon): ?>
-						<option value="<?= $weapon[0] ?>"><?= $weapon[0] ?></option>
-					<?php endforeach; ?>
-				</select>
-				<br />
-				<input type="submit" value="Compare">
-			</form>
+<?php $maker->write('comptable') ?>
 		</div>
 	</div>
 </body>
