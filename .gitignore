@@ -1,0 +1,7 @@
+settings.ini
+
+loader/nbproject/private/
+loader/build/
+loader/dist/
+
+site/nbproject/
