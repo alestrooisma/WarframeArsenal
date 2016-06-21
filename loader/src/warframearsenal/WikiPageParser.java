@@ -1,7 +1,12 @@
 package warframearsenal;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -97,7 +102,11 @@ public class WikiPageParser {
 		} else if (childClass.equals("name")) {
 //			System.out.println(child.text().toUpperCase());
 		} else if (childClass.equals("image")) {
-			//TODO: download image
+			Elements imgs = row.getElementsByTag("img");
+			if (imgs.size() != 2) {
+				System.err.println("WARNING: unexpected structure in image row");
+			}
+			downloadImage("/var/www/html/warframe/images/" + builder.name, imgs.get(1).attr("src"));
 		} else if (childClass.equals("category")) {
 			//TODO: handle this
 //			System.out.println(child.text());
@@ -108,10 +117,16 @@ public class WikiPageParser {
 		// contents will be processed individually.
 	}
 	
-	public void downloadImage() {
-//		URL website = new URL("http://www.website.com/information.asp");
-//		ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-//		FileOutputStream fos = new FileOutputStream("information.html");
-//		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+	public void downloadImage(String filename, String url) throws BadValueException {
+		try {
+			URL website = new URL(url);
+			ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+			FileOutputStream fos = new FileOutputStream(filename);
+			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+		} catch (MalformedURLException ex) {
+			throw new BadValueException("Bad image URL (" + ex.getMessage() + ")", ex);
+		} catch (IOException ex) {
+			throw new BadValueException("IOException while downloading image (" + ex.getMessage() + ")", ex);
+		}
 	}
 }

@@ -1,38 +1,52 @@
 <?php
+
 class TableMaker {
+
 	private $weapons;
-	
+
 	public function __construct($weapons) {
 		$this->weapons = $weapons;
 	}
-	
+
 	public function write($class) {
 		$this->begin($class);
-		foreach ($this->weapons[0] as $key => $value) {
-			$this->writeRow($key);
-		}
+		$this->writeImageRow();
+		$this->writeHeaderRow();
+		$this->writeRow('Mastery Level', 'mastery_level');
+		$this->writeRow('Weapon Slot', 'slot');
+		$this->writeRow('Weapon Type', 'type');
+		$this->writeRow('Trigger Type', 'trigger_type');
+		$this->writeRow('Fire Rate', 'fire_rate');
+		$this->writeRow('Accuracy', 'accuracy');
+		$this->writeRow('Magazine Size', 'mag_size');
+		$this->writeRow('Max Ammo', 'max_ammo');
 		$this->end();
 	}
-	
+
 	public function begin($class) {
-		echo '<table class="'.$class.'">' . PHP_EOL;
+		echo '<table class="' . $class . '">' . PHP_EOL;
 	}
-	
+
 	public function end() {
 		echo '</table>' . PHP_EOL;
 	}
-	
-	public function writeHeaderRow($title, $col = null) {
-		if ($col === null) {
-			$col = $title;
-		}
-		echo '    <tr><th>' . $title . '</th>';
+
+	public function writeImageRow() {
+		echo '    <tr class="imagerow"><td class="topleft"></td>';
 		foreach ($this->weapons as $weapon) {
-			echo '<th>' . $weapon->$col . '</th>';
+			echo '<td><img src="images/'.$weapon->name.'"></td>';
 		}
 		echo '</tr>' . PHP_EOL;
 	}
-	
+
+	public function writeHeaderRow() {
+		echo '    <tr class="headerrow"><th class="topleft"></th>';
+		foreach ($this->weapons as $weapon) {
+			echo '<th>' . $weapon->name . '</th>';
+		}
+		echo '</tr>' . PHP_EOL;
+	}
+
 	public function writeRow($title, $col = null) {
 		if ($col === null) {
 			$col = $title;
@@ -43,11 +57,11 @@ class TableMaker {
 		}
 		echo '</tr>' . PHP_EOL;
 	}
-	
+
 	public function dump() {
 		echo '<pre>';
 		var_dump($this->weapons);
 		echo '</pre>';
 	}
-	
+
 }

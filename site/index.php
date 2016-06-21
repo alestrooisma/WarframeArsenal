@@ -38,19 +38,7 @@ try {
 <body>
 	<div id="page">
 		<div id="content">
-<?php
-$maker->begin('comptable');
-$maker->writeHeaderRow('', 'name');
-$maker->writeRow('Mastery Level', 'mastery_level');
-$maker->writeRow('Weapon Slot', 'slot');
-$maker->writeRow('Weapon Type', 'type');
-$maker->writeRow('Trigger Type', 'trigger_type');
-$maker->writeRow('Fire Rate', 'fire_rate');
-$maker->writeRow('Accuracy', 'accuracy');
-$maker->writeRow('Magazine Size', 'mag_size');
-$maker->writeRow('Max Ammo', 'max_ammo');
-$maker->end();
-?>
+<?php $maker->write('comptable') ?>
 		</div>
 	</div>
 </body>

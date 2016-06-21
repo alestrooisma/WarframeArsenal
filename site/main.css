@@ -12,7 +12,26 @@
 }
 
 .comptable th, td {
-    border: 1px solid black;
+    border: none;
 	text-align: center;
 	padding: 5px;
+}
+
+.comptable .topleft {
+	border: none;
+}
+
+.comptable .imagerow td {
+	border-bottom: none;
+	padding-bottom: 0px;
+}
+
+.comptable .headerrow th {
+	border-top: none;
+	padding-top: 0px;
+	font-size: 120%;
+}
+
+.comptable .imagerow img {
+	width: 180px;
 }

@@ -27,7 +27,7 @@ public abstract class WeaponBuilder {
 			} else if (key.equals("Weapon Type")) {
 				type = getWeaponType(value);
 			} else if (!isIgnored(key)) {
-				System.err.println("WARNING: Ignoring unknown field \"" + key + "\".");
+				System.out.println("WARNING: Ignoring unknown field \"" + key + "\".");
 			}
 		} catch (NumberFormatException ex) {
 			throw new BadValueException("Failed parsing \"" + value + "\" to a number for field \"" + key + "\".", ex);
