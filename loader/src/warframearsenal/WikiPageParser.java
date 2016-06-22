@@ -55,6 +55,8 @@ public class WikiPageParser {
 	public void parseWeapon(String weaponName, WeaponBuilder builder) {
 		String url = "http://warframe.wikia.com/wiki/" + weaponName;
 		try {
+			System.out.println("\n" + weaponName);
+			
 			// Download page
 			Document doc = Jsoup.connect(url).get();
 			
@@ -72,9 +74,6 @@ public class WikiPageParser {
 			for (Element row : rows) {
 				processRow(row, builder);
 			}
-			
-			// Final whitespace
-			System.out.println();
 			
 			// Save to database
 			if (builder.isValid()) {
@@ -108,7 +107,7 @@ public class WikiPageParser {
 			}
 			downloadImage("/var/www/html/warframe/images/" + builder.name, imgs.get(1).attr("src"));
 		} else if (childClass.equals("category")) {
-			//TODO: handle this
+			builder.setCategory(child.text());
 //			System.out.println(child.text());
 		} else if (!childClass.isEmpty()) {
 			System.err.println("unidentified element!");

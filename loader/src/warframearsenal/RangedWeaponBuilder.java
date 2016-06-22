@@ -7,42 +7,43 @@ import warframearsenal.enums.TriggerType;
 import warframearsenal.exceptions.BadValueException;
 
 public class RangedWeaponBuilder extends WeaponBuilder {
+	
 	private TriggerType triggerType = null;
 	private float fireRate = -1;
 	private float accuracy = -1;
 	private int magazineSize = -1;
 	private int maxAmmo = -1;
+//	private FlightSpeedType flightSpeedType = null;
+//	private float flightSpeed = -1;
+	private float reloadTime = -1;
+	private float impact = 0;
+	private float puncture = 0;
+	private float slash = 0;
+	private float critChance = -1;
+	private float critMultiplier = -1;
+	private float statusChance = -1;
 
 	public RangedWeaponBuilder(String name) {
 		super(name);
 	}
 
 	@Override
-	public void set(String key, String value) throws BadValueException {
-		value = value.replace('\u00A0',' ');
-		try {
-			switch (key) {
-				case "Trigger Type":
-					triggerType = getTriggerType(value);
-					break;
-				case "Fire Rate":
-					fireRate = parseFloat(value, "rounds/sec");
-					break;
-				case "Accuracy":
-					accuracy = parseFloat(value);
-					break;
-				case "Magazine Size":
-					magazineSize = parseInt(value, "rounds/mag");
-					break;
-				case "Max Ammo":
-					maxAmmo = parseInt(value, "rounds");
-					break;
-				default:
-					super.set(key, value);
-					break;
-			}
-		} catch (NumberFormatException ex) {
-			throw new BadValueException("Failed parsing \"" + value + "\" to a number for field \"" + key + "\".", ex);
+	public void setCategory(String category) throws BadValueException {
+		switch (category) {
+			case "Statistics":
+				state = new StatisticsState2();
+				break;
+			case "Utility":
+				state = new UtilityState();
+				break;
+			case "Normal Attacks":
+				state = new NormalAttacksState();
+				break;
+			case "Miscellaneous":
+				state = new MiscellaneousState();
+				break;
+			default:
+				throw new BadValueException("Unknown category \"" + category + "\"");
 		}
 	}
 
@@ -51,8 +52,6 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 		switch (key) {
 			case "Noise Level":
 			case "Physical Damage":
-			case "Conclave":
-			case "Introduced":
 				return true;
 			default:
 				return super.isIgnored(key);
@@ -89,6 +88,90 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 				return TriggerType.AUTO;
 			default:
 				throw new BadValueException("Unknown trigger type \"" + value + "\".");
+		}
+	}
+	
+	private class StatisticsState2 extends StatisticsState {
+
+		@Override
+		public boolean set(String key, String value) throws BadValueException {
+			if (key.equals("Trigger Type")) {
+				triggerType = getTriggerType(value);
+				return true;
+			} else {
+				return super.set(key, value);
+			}
+		}
+	}
+	
+	private class UtilityState extends BuilderState {
+
+		@Override
+		public boolean set(String key, String value) throws BadValueException {
+			switch (key) {
+//				case "Flight Speed":
+//					if (value.equals("Hit-Scan")) {
+//						flightSpeedType = FlightSpeedType.HITSCAN;
+//					} else {
+//						flightSpeedType = FlightSpeedType.PROJECTILE;
+//						fireRate = parseFloat(value, "m/s");
+//					}
+//					return true;
+				case "Fire Rate":
+					fireRate = parseFloat(value, "rounds/sec");
+					return true;
+				case "Accuracy":
+					accuracy = parseFloat(value);
+					return true;
+				case "Magazine Size":
+					magazineSize = parseInt(value, "rounds/mag");
+					return true;
+				case "Max Ammo":
+					maxAmmo = parseInt(value, "rounds");
+					return true;
+				case "Reload Time":
+					reloadTime = parseFloat(value, "s");
+					return true;
+				default:
+					return false;
+			}
+		}
+	}
+
+	private class NormalAttacksState extends BuilderState {
+
+		@Override
+		public boolean set(String key, String value) throws BadValueException, NumberFormatException {
+			switch (key) {
+				case "Impact":
+					impact = parseFloat(value);
+					return true;
+				case "Puncture":
+					puncture = parseFloat(value);
+					return true;
+				case "Slash":
+					slash = parseFloat(value);
+					return true;
+				case "Crit Chance":
+					critChance = parseFloat(value, "%");
+					return true;
+				case "Crit Multiplier":
+					critMultiplier = parseFloat(value, "x");
+					return true;
+				case "Status Chance":
+					statusChance = parseFloat(value, "%");
+					return true;
+				default:
+					return false;
+			}
+		}
+	}
+
+	private class MiscellaneousState extends BuilderState {
+
+		@Override
+		public boolean set(String key, String value) throws BadValueException, NumberFormatException {
+			return false;
 		}
 	}
 }
