@@ -61,7 +61,9 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 	@Override
 	public boolean isValid() {
 		return super.isValid() && triggerType != null && fireRate > 0 
-				&& accuracy > 0 && magazineSize > 0 && maxAmmo > 0;
+				&& accuracy > 0 && magazineSize > 0 && maxAmmo > 0 
+				&& reloadTime > 0 && impact >= 0 && puncture >= 0 && slash >= 0
+				&& critChance >= 0 && critMultiplier >= 1 && statusChance >= 0;
 	}
 
 	@Override
