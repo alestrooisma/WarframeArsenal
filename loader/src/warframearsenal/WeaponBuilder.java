@@ -2,6 +2,8 @@ package warframearsenal;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import warframearsenal.enums.WeaponSlot;
 import warframearsenal.enums.WeaponType;
 import warframearsenal.exceptions.BadValueException;
@@ -9,6 +11,7 @@ import warframearsenal.exceptions.BadValueException;
 public abstract class WeaponBuilder {
 
 	protected BuilderState state;
+	private final DecimalFormat numberParser;
 
 	protected final String name;
 	protected int masteryLevel = -1;
@@ -16,9 +19,10 @@ public abstract class WeaponBuilder {
 	protected WeaponType type = null;
 	//TODO polarities
 
-	public WeaponBuilder(String name) {
-		this.state = new StatisticsState();
-		this.name = name;
+	public WeaponBuilder(String weaponName) {
+		state = new StatisticsState();
+		numberParser = new DecimalFormat();
+		name = weaponName;
 	}
 
 	public abstract void setCategory(String category) throws BadValueException;
@@ -39,7 +43,7 @@ public abstract class WeaponBuilder {
 				}
 			}
 		} catch (NumberFormatException ex) {
-			throw new BadValueException("Failed parsing \"" + value + "\" to a number for field \"" + key + "\".", ex);
+			throw new BadValueException("Failed parsing \"" + value + "\" to a number for field \"" + key + "\" (" + ex.getMessage() + ").", ex);
 		}
 	}
 
@@ -61,19 +65,27 @@ public abstract class WeaponBuilder {
 	public abstract boolean save(Connection connection) throws SQLException;
 
 	protected int parseInt(String value) {
-		return Integer.parseInt(value);
+		try {
+			return numberParser.parse(value).intValue();
+		} catch (ParseException ex) {
+			throw new NumberFormatException(ex.getMessage());
+		}
 	}
 
 	protected int parseInt(String value, String suffix) {
-		return Integer.parseInt(removeSuffix(value, suffix));
+		return parseInt(removeSuffix(value, suffix));
 	}
 
 	protected float parseFloat(String value) {
-		return Float.parseFloat(value);
+		try {
+			return numberParser.parse(value).floatValue();
+		} catch (ParseException ex) {
+			throw new NumberFormatException(ex.getMessage());
+		}
 	}
 
 	protected float parseFloat(String value, String suffix) {
-		return Float.parseFloat(removeSuffix(value, suffix));
+		return parseFloat(removeSuffix(value, suffix));
 	}
 
 	private String removeSuffix(String value, String suffix) {
