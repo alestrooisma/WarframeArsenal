@@ -21,7 +21,7 @@ try {
 <head>
 	<meta charset="utf-8">
 	<title>Warframe weapons comparison</title>
-	<link rel="stylesheet" type="text/css" href="main.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<!--<script src="jquery.js" async></script>-->
 	<!--<script src="table.js" async></script>-->
 </head>

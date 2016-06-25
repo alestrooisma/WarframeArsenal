@@ -5,11 +5,17 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include 'TableMaker.php';
-include 'RangedWeapon.php';
+include 'php/TableMaker.php';
+include 'php/RangedWeapon.php';
+
 try {
 	$settings = parse_ini_file('settings.ini');
+	
 	$selection = $_GET['weapons'];
+//	$i = 0;
+//	while ($i < count($selection) && preg_match('[A-Za-z ]+', $selection[$i]) != 1) {
+//		$i++;
+//	}
 	//TODO if count(selection) == 0
 	$weaponlist = "('" . $selection[0] . "'";
 	for ($i = 1; $i < count($selection); $i++) {
@@ -21,10 +27,6 @@ try {
 	$statement = $db->query("SELECT * FROM RangedWeapons WHERE name IN " . $weaponlist);
 	$statement->setFetchMode(PDO::FETCH_CLASS, 'RangedWeapon');
 	$weapons = $statement->fetchAll();
-//	$weapons = array();
-//	foreach ($statement as $row) {
-//		$weapons[] = $row;
-//	}
 	unset($db);
 	
 	$maker = new TableMaker($weapons);
@@ -38,7 +40,7 @@ try {
 <head>
 	<meta charset="utf-8">
 	<title>Warframe weapons comparison</title>
-	<link rel="stylesheet" type="text/css" href="main.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<!--<script src="jquery.js" async></script>-->
 	<!--<script src="table.js" async></script>-->
 </head>
