@@ -20,13 +20,13 @@ class TableMaker {
 		$this->writeRow('Accuracy', 'accuracy');
 		$this->writeRow('Magazine Size', 'mag_size');
 		$this->writeRow('Max Ammo', 'max_ammo');
-//		$this->writeRow('Reload Time', 'reload_time');
-//		$this->writeRow('Impact', 'impact');
-//		$this->writeRow('Puncture', 'puncture');
-//		$this->writeRow('Slash', 'slash');
-//		$this->writeRow('Crit Chance', 'crit_chance');
-//		$this->writeRow('Crit Multiplier', 'crit_multiplier');
-//		$this->writeRow('Status Chance', 'status_chance');
+		$this->writeRow('Reload Time', 'reload_time');
+		$this->writeRow('Impact', 'impact');
+		$this->writeRow('Puncture', 'puncture');
+		$this->writeRow('Slash', 'slash');
+		$this->writeRow('Crit Chance', 'crit_chance');
+		$this->writeRow('Crit Multiplier', 'crit_multiplier');
+		$this->writeRow('Status Chance', 'status_chance');
 		$this->end();
 	}
 

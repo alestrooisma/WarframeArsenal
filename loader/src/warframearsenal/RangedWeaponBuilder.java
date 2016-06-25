@@ -68,11 +68,15 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 	public boolean save(Connection connection) throws SQLException {
 		Statement statement = connection.createStatement();
 		String query = "INSERT INTO ranged_weapons "
-				+ "(name, mastery_level, slot, type, trigger_type, fire_rate, accuracy, mag_size, max_ammo) " 
+				+ "(name, mastery_level, slot, type, trigger_type, fire_rate,"
+				+ " accuracy, mag_size, max_ammo, reload_time, impact, puncture,"
+				+ " slash, crit_chance, crit_multiplier, status_chance) " 
 				+ "VALUES ('" + name + "', " + masteryLevel + ", "+ slot.getId() 
 				+ ", " + type.getId() + ", " + triggerType.getId() + ", " 
-				+ fireRate + ", " + accuracy + ", " + magazineSize + ", " + maxAmmo + ")";
-		System.out.println(query);
+				+ fireRate + ", " + accuracy + ", " + magazineSize + ", " 
+				+ maxAmmo + ", " + reloadTime + ", " + impact + ", " 
+				+ puncture + ", " + slash + ", " + critChance + ", "
+				+ critMultiplier + ", " + statusChance + ")";
 		int number = statement.executeUpdate(query);
 		if (number != 1) {
 			throw new SQLException("Failed to save \"" + name + "\" (" + number + " rows updated).");
