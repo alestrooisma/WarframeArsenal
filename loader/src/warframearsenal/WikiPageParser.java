@@ -10,6 +10,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import org.ini4j.Ini;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,22 +20,25 @@ import warframearsenal.exceptions.BadValueException;
 
 public class WikiPageParser {
 	private final Connection connection;
+	private final ArrayList<String> rangedWeapons = new ArrayList(50);
+	private final ArrayList<String> meleeWeapons = new ArrayList(50);
 
 	public static void main(String[] args) {
 		try {
 			WikiPageParser parser = new WikiPageParser();
-			parser.parseRangedWeapon("Latron Prime");
-			parser.parseRangedWeapon("Latron");
-			parser.parseRangedWeapon("Braton");
-			parser.parseRangedWeapon("Soma");
-			parser.parseRangedWeapon("Grakata");
-			parser.parseRangedWeapon("Gorgon");
-	//		parseRangedWeapon("Sobek");
-	//		parseRangedWeapon("Afuris");
-	//		parseMeleeWeapon("Skana");
-	//		parseMeleeWeapon("Heat Sword");
+//			parser.parseRangedWeapon("Latron Prime");
+//			parser.parseRangedWeapon("Latron");
+//			parser.parseRangedWeapon("Braton");
+//			parser.parseRangedWeapon("Soma");
+//			parser.parseRangedWeapon("Grakata");
+//			parser.parseRangedWeapon("Gorgon");
+//	//		parseRangedWeapon("Sobek");
+//	//		parseRangedWeapon("Afuris");
+//	//		parseMeleeWeapon("Skana");
+//	//		parseMeleeWeapon("Heat Sword");
+			parser.parseAllWeapons();
 		} catch (SQLException | IOException ex) {
-			System.err.println("ERROR: " + ex);
+			System.out.println("! ERROR: " + ex);
 		}
 	}
 
@@ -42,6 +46,49 @@ public class WikiPageParser {
 		Ini ini = new Ini(new File("settings.ini"));
 		connection = DriverManager.getConnection("jdbc:mysql://localhost/arsenal",
 					ini.get("database", "user"), ini.get("database", "password"));
+	}
+	
+	public void parseAllWeapons() {
+		getAllWeapons();
+		for (String weapon : rangedWeapons) {
+			parseRangedWeapon(weapon);
+		}
+//		for (String weapon : meleeWeapons) {
+//			parseMeleeWeapon(weapon);
+//		}
+	}
+	
+	public void getAllWeapons() {
+		String url = "http://warframe.wikia.com/wiki/Weapons";
+		try {			
+			// Download page
+			Document doc = Jsoup.connect(url).get();
+			
+			// Get navboxes containing weapon links
+			Elements navboxes = doc.select("table.navbox");
+			if (navboxes.size() < 3) {
+				System.out.println("! ERROR: Did not find the expected navboxes.");
+				return;
+			}
+			
+			// Process the navboxes "Primary", "Secondary" and "Melee"
+			parseNavBox(navboxes.get(0), rangedWeapons);
+			parseNavBox(navboxes.get(1), rangedWeapons);
+			parseNavBox(navboxes.get(2), meleeWeapons);
+			
+		} catch (IOException ex) {
+			System.out.println("! ERROR: Error while connecting to \"" + url + "\": " + ex.getMessage());
+		}
+	}
+
+	private void parseNavBox(Element navbox, ArrayList<String> array) {
+		Elements links = navbox.getElementsByTag("a");
+		for (Element link : links) {
+			String title = link.attr("title");
+			if (!title.startsWith("Category")) {
+				array.add(title);
+			}
+		}
 	}
 	
 	public void parseRangedWeapon(String weaponName) {
@@ -63,10 +110,10 @@ public class WikiPageParser {
 			// Select infobox
 			Elements infoboxes = doc.select("table.infobox");
 			if (infoboxes.isEmpty()) {
-				System.err.println("ERROR: Could not find infobox: \""+ weaponName +"\" does not seem to be a weapon.");
+				System.out.println("! ERROR: Could not find infobox: \""+ weaponName +"\" does not seem to be a weapon.");
 				return;
 			} else if (infoboxes.size() > 1) {
-				System.err.println("WARNING: More than 1 infobox! Trying to process first one...");
+				System.out.println("WARNING: More than 1 infobox! Trying to process first one...");
 			}
 			
 			// Iterate table rows
@@ -79,16 +126,16 @@ public class WikiPageParser {
 			if (builder.isValid()) {
 				builder.save(connection);
 			} else {
-				System.err.println("ERROR: Trying to save in invalid state.");
+				System.out.println("! ERROR: Trying to save in invalid state.");
 			}
 			
 		} catch (IOException ex) {
-			System.err.println("ERROR: Error while connecting to \"" + url + "\": " + ex.getMessage());
-			System.err.println("       Either \""+ weaponName +"\" is not a weapon or the wiki is unaccessible.");
+			System.out.println("! ERROR: Error while connecting to \"" + url + "\": " + ex.getMessage());
+			System.out.println("         Either \""+ weaponName +"\" is not a weapon or the wiki is unaccessible.");
 		} catch (BadValueException ex) {
-			System.err.println("ERROR: Parsing \""+ weaponName +"\" failed: " + ex.getMessage());
+			System.out.println("! ERROR: Parsing \""+ weaponName +"\" failed: " + ex.getMessage());
 		} catch (SQLException ex) {
-			System.err.println("ERROR: Database error - did not save weapon \""+ weaponName +"\": " + ex.getMessage());
+			System.out.println("! ERROR: Database error - did not save weapon \""+ weaponName +"\": " + ex.getMessage());
 		}
 	}
 	
@@ -103,14 +150,14 @@ public class WikiPageParser {
 		} else if (childClass.equals("image")) {
 			Elements imgs = row.getElementsByTag("img");
 			if (imgs.size() != 2) {
-				System.err.println("WARNING: unexpected structure in image row");
+				System.out.println("WARNING: unexpected structure in image row");
 			}
 			downloadImage("/var/www/html/warframe/images/" + builder.name, imgs.get(1).attr("src"));
 		} else if (childClass.equals("category")) {
 			builder.setCategory(child.text());
 //			System.out.println(child.text());
 		} else if (!childClass.isEmpty()) {
-			System.err.println("unidentified element!");
+			System.out.println("! ERROR: unidentified element!");
 		} 
 		// else ignore, because the row just contains a grouping table, whose 
 		// contents will be processed individually.
