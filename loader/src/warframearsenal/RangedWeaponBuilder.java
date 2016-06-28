@@ -58,6 +58,7 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 		switch (key) {
 			case "Noise Level":
 			case "Physical Damage":
+			case "Ammo Type":
 			case "Flight Speed": //TODO don't ignore Flight Speed
 			case "Polarities": //TODO don't ignore Polarities
 				return true;

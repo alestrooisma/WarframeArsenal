@@ -52,6 +52,7 @@ public abstract class WeaponBuilder {
 			case "Conclave":
 			case "Introduced":
 			case "Weapon Users":
+			case "Augments":
 				return true;
 			default:
 				return false;
