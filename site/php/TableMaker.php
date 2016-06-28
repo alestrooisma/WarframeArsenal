@@ -27,6 +27,8 @@ class TableMaker {
 		$this->writeRow('Crit Chance', 'crit_chance');
 		$this->writeRow('Crit Multiplier', 'crit_multiplier');
 		$this->writeRow('Status Chance', 'status_chance');
+		$this->writeSecondaryAttackRow();
+		$this->writeWikiRow();
 		$this->end();
 	}
 
@@ -69,6 +71,24 @@ class TableMaker {
 		echo '<pre>';
 		var_dump($this->weapons);
 		echo '</pre>';
+	}
+
+	public function writeSecondaryAttackRow() {
+	
+		echo '    <tr><th>Secondary Attack</th>';
+		foreach ($this->weapons as $weapon) {
+			echo '<td>' . ($weapon->secondary_attack == 1 ? "yes" : "no") . '</td>';
+		}
+		echo '</tr>' . PHP_EOL;
+	}
+
+	public function writeWikiRow() {
+	
+		echo '    <tr><th>More information</th>';
+		foreach ($this->weapons as $weapon) {
+			echo '<td><a href="http://warframe.wikia.com/wiki/'.$weapon->name.'">wiki</a></td>';
+		}
+		echo '</tr>' . PHP_EOL;
 	}
 
 }

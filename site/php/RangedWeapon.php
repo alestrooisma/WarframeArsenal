@@ -14,4 +14,5 @@ class RangedWeapon extends Weapon {
 	public $crit_chance;
 	public $crit_multiplier;
 	public $status_chance;
+	public $secondary_attack;
 }

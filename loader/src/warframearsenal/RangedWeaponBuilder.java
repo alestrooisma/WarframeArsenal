@@ -23,6 +23,7 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 	private float critChance = -1;
 	private float critMultiplier = -1;
 	private float statusChance = -1;
+	private boolean secondaryAttack = false;
 
 	public RangedWeaponBuilder(String name) {
 		super(name);
@@ -39,6 +40,10 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 				break;
 			case "Normal Attacks":
 				state = new NormalAttacksState();
+				break;
+			case "Secondary Attacks":
+				secondaryAttack = true;
+				state = new SecondaryAttackState();
 				break;
 			case "Miscellaneous":
 				state = new MiscellaneousState();
@@ -75,13 +80,14 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 		String query = "INSERT INTO ranged_weapons "
 				+ "(name, mastery_level, slot, type, trigger_type, fire_rate,"
 				+ " accuracy, mag_size, max_ammo, reload_time, impact, puncture,"
-				+ " slash, crit_chance, crit_multiplier, status_chance) " 
+				+ " slash, crit_chance, crit_multiplier, status_chance, secondary_attack) " 
 				+ "VALUES ('" + name + "', " + masteryLevel + ", "+ slot.getId() 
 				+ ", " + type.getId() + ", " + triggerType.getId() + ", " 
 				+ fireRate + ", " + accuracy + ", " + magazineSize + ", " 
 				+ maxAmmo + ", " + reloadTime + ", " + impact + ", " 
 				+ puncture + ", " + slash + ", " + critChance + ", "
-				+ critMultiplier + ", " + statusChance + ")";
+				+ critMultiplier + ", " + statusChance + ", " 
+				+ (secondaryAttack ? "TRUE" : "FALSE") + ")";
 		int number = statement.executeUpdate(query);
 		if (number != 1) {
 			throw new SQLException("Failed to save \"" + name + "\" (" + number + " rows updated).");
@@ -181,6 +187,14 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 				default:
 					return false;
 			}
+		}
+	}
+
+	private class SecondaryAttackState extends BuilderState {
+
+		@Override
+		public boolean set(String key, String value) throws BadValueException, NumberFormatException {
+			return true;
 		}
 	}
 
