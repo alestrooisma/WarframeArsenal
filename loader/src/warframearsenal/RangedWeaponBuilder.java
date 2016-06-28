@@ -100,6 +100,7 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 			case "Semi-Auto":
 			case "Semi-auto":
 			case "Active":
+			case "Duplex-Auto":
 				return TriggerType.SEMI_AUTO;
 			case "Auto":
 			case "Held":
