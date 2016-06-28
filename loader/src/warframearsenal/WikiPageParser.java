@@ -22,6 +22,7 @@ public class WikiPageParser {
 	private final Connection connection;
 	private final ArrayList<String> rangedWeapons = new ArrayList(50);
 	private final ArrayList<String> meleeWeapons = new ArrayList(50);
+	private String currentWeapon;
 
 	public static void main(String[] args) {
 		try {
@@ -38,7 +39,8 @@ public class WikiPageParser {
 //	//		parseMeleeWeapon("Heat Sword");
 			parser.parseAllWeapons();
 		} catch (SQLException | IOException ex) {
-			System.out.println("! ERROR: " + ex);
+			System.err.println("UNCAUGHT EXCEPTION: " + ex);
+			ex.printStackTrace();
 		}
 	}
 
@@ -68,7 +70,7 @@ public class WikiPageParser {
 			// Get navboxes containing weapon links
 			Elements navboxes = doc.select("table.navbox");
 			if (navboxes.size() < 3) {
-				System.out.println("! ERROR: Did not find the expected navboxes.");
+				error("Did not find the expected navboxes.");
 				return;
 			}
 			
@@ -78,7 +80,7 @@ public class WikiPageParser {
 //			parseNavBox(navboxes.get(2), meleeWeapons); //TODO enable melee weapons
 			
 		} catch (IOException ex) {
-			System.out.println("! ERROR: Error while connecting to \"" + url + "\": " + ex.getMessage());
+			error("Error while connecting to \"" + url + "\": " + ex.getMessage());
 		}
 	}
 
@@ -101,20 +103,20 @@ public class WikiPageParser {
 	}
 	
 	public void parseWeapon(String weaponName, WeaponBuilder builder) {
+		currentWeapon = weaponName;
 		String url = "http://warframe.wikia.com/wiki/" + weaponName;
 		try {
-			System.out.println("\n" + weaponName);
-			
 			// Download page
 			Document doc = Jsoup.connect(url).get();
 			
 			// Select infobox
 			Elements infoboxes = doc.select("table.infobox");
 			if (infoboxes.isEmpty()) {
-				System.out.println("! ERROR: Could not find infobox: \""+ weaponName +"\" does not seem to be a weapon.");
+				error("Could not find infobox: \""+ weaponName +"\" does not seem to be a weapon.");
 				return;
 			} else if (infoboxes.size() > 1) {
-				System.out.println("WARNING: More than 1 infobox! Trying to process first one...");
+				error("More than 1 infobox! (failing fast)");
+				return;
 			}
 			
 			// Iterate table rows
@@ -127,16 +129,16 @@ public class WikiPageParser {
 			if (builder.isValid()) {
 				builder.save(connection);
 			} else {
-				System.out.println("! ERROR: Trying to save in invalid state.");
+				error("Trying to save in invalid state.");
 			}
 			
 		} catch (IOException ex) {
-			System.out.println("! ERROR: Error while connecting to \"" + url + "\": " + ex.getMessage());
-			System.out.println("         Either \""+ weaponName +"\" is not a weapon or the wiki is unaccessible.");
+			error("Error while connecting to \"" + url + "\": " + ex.getMessage() 
+					+ "\n    Either \""+ weaponName +"\" is not a weapon or the wiki is unaccessible.");
 		} catch (BadValueException ex) {
-			System.out.println("! ERROR: Parsing \""+ weaponName +"\" failed: " + ex.getMessage());
+			error("Parsing \""+ weaponName +"\" failed: " + ex.getMessage());
 		} catch (SQLException ex) {
-			System.out.println("! ERROR: Database error - did not save weapon \""+ weaponName +"\": " + ex.getMessage());
+			error("Database error - did not save weapon \""+ weaponName +"\": " + ex.getMessage());
 		}
 	}
 	
@@ -145,9 +147,8 @@ public class WikiPageParser {
 		String childClass = child.className();
 		if (childClass.equals("left")) {
 			builder.set(child.text(), row.child(1).text());
-//			System.out.println("  " + child.text() + " = " + row.child(1).text());
 		} else if (childClass.equals("name")) {
-//			System.out.println(child.text().toUpperCase());
+			// Not doing anything.
 		} else if (childClass.equals("image")) {
 			Elements imgs = row.getElementsByTag("img");
 			if (imgs.isEmpty() || imgs.size() > 2) {
@@ -156,9 +157,8 @@ public class WikiPageParser {
 			downloadImage("/var/www/html/warframe/images/" + builder.name, imgs.last().attr("src"));
 		} else if (childClass.equals("category")) {
 			builder.setCategory(child.text());
-//			System.out.println(child.text());
 		} else if (!childClass.isEmpty()) {
-			System.out.println("! ERROR: unidentified element!");
+			error("Ignoring unidentified element in downloaded HTML! (row with class=\"" + child.className() + "\")");
 		}
 		// else ignore, because the row just contains a grouping table, whose 
 		// contents will be processed individually.
@@ -175,5 +175,13 @@ public class WikiPageParser {
 		} catch (IOException ex) {
 			throw new BadValueException("IOException while downloading image (" + ex.getMessage() + ")", ex);
 		}
+	}
+	
+	public void error(String message) {
+		System.err.println(currentWeapon.toUpperCase() + ": " + message);
+	}
+	
+	public void error(Exception ex) {
+		error(ex.getMessage());
 	}
 }
