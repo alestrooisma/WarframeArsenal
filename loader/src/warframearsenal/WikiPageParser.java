@@ -27,16 +27,7 @@ public class WikiPageParser {
 	public static void main(String[] args) {
 		try {
 			WikiPageParser parser = new WikiPageParser();
-//			parser.parseRangedWeapon("Latron Prime");
-//			parser.parseRangedWeapon("Latron");
-//			parser.parseRangedWeapon("Braton");
-//			parser.parseRangedWeapon("Soma");
-//			parser.parseRangedWeapon("Grakata");
-//			parser.parseRangedWeapon("Gorgon");
-//	//		parseRangedWeapon("Sobek");
-//	//		parseRangedWeapon("Afuris");
-//	//		parseMeleeWeapon("Skana");
-//	//		parseMeleeWeapon("Heat Sword");
+//			parser.parseRangedWeapon("Karak Wraith");
 			parser.parseAllWeapons();
 		} catch (SQLException | IOException ex) {
 			System.err.println("UNCAUGHT EXCEPTION: " + ex);

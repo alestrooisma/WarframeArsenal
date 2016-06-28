@@ -31,16 +31,9 @@ public abstract class WeaponBuilder {
 		key = key.replace('\u00A0', ' ');
 		value = value.replace('\u00A0', ' ');
 		try {
-			if (!state.set(key, value)) {
-				if (key.equals("Mastery Level")) {
-					masteryLevel = parseInt(value);
-				} else if (key.equals("Weapon Slot")) {
-					slot = getWeaponSlot(value);
-				} else if (key.equals("Weapon Type")) {
-					type = getWeaponType(value);
-				} else if (!isIgnored(key)) {
-					System.out.println(name + ": Ignoring unknown field \"" + key + "\".");
-				}
+			boolean isSet = state.set(key, value);
+			if (!isSet && !isIgnored(key)) {
+				System.out.println(name + ": Ignoring unknown field \"" + key + "\".");
 			}
 		} catch (NumberFormatException ex) {
 			throw new BadValueException("Failed parsing \"" + value + "\" to a number for field \"" + key + "\" (" + ex.getMessage() + ").", ex);
@@ -143,7 +136,15 @@ public abstract class WeaponBuilder {
 		public boolean set(String key, String value) throws BadValueException, NumberFormatException {
 			switch (key) {
 				case "Mastery Level":
-					masteryLevel = parseInt(value);
+					try {
+						masteryLevel = parseInt(value);
+					} catch (NumberFormatException ex) {
+						if (value.contains("?")) {
+							masteryLevel = 255;
+						} else {
+							throw ex;
+						}
+					}
 					return true;
 				case "Weapon Slot":
 					slot = getWeaponSlot(value);
