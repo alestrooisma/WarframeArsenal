@@ -53,6 +53,7 @@ public class WikiPageParser {
 		for (String weapon : rangedWeapons) {
 			parseRangedWeapon(weapon);
 		}
+		//TODO enable melee weapons
 //		for (String weapon : meleeWeapons) {
 //			parseMeleeWeapon(weapon);
 //		}
@@ -73,8 +74,8 @@ public class WikiPageParser {
 			
 			// Process the navboxes "Primary", "Secondary" and "Melee"
 			parseNavBox(navboxes.get(0), rangedWeapons);
-			parseNavBox(navboxes.get(1), rangedWeapons);
-			parseNavBox(navboxes.get(2), meleeWeapons);
+//			parseNavBox(navboxes.get(1), rangedWeapons); //TODO enable secondary weapons
+//			parseNavBox(navboxes.get(2), meleeWeapons); //TODO enable melee weapons
 			
 		} catch (IOException ex) {
 			System.out.println("! ERROR: Error while connecting to \"" + url + "\": " + ex.getMessage());
@@ -149,16 +150,16 @@ public class WikiPageParser {
 //			System.out.println(child.text().toUpperCase());
 		} else if (childClass.equals("image")) {
 			Elements imgs = row.getElementsByTag("img");
-			if (imgs.size() != 2) {
-				System.out.println("WARNING: unexpected structure in image row");
+			if (imgs.isEmpty() || imgs.size() > 2) {
+				throw new BadValueException("Unexpected structure in image row");
 			}
-			downloadImage("/var/www/html/warframe/images/" + builder.name, imgs.get(1).attr("src"));
+			downloadImage("/var/www/html/warframe/images/" + builder.name, imgs.last().attr("src"));
 		} else if (childClass.equals("category")) {
 			builder.setCategory(child.text());
 //			System.out.println(child.text());
 		} else if (!childClass.isEmpty()) {
 			System.out.println("! ERROR: unidentified element!");
-		} 
+		}
 		// else ignore, because the row just contains a grouping table, whose 
 		// contents will be processed individually.
 	}

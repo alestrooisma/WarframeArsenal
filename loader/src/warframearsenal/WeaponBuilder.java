@@ -113,7 +113,19 @@ public abstract class WeaponBuilder {
 	private WeaponType getWeaponType(String value) throws BadValueException {
 		switch (value) {
 			case "Assault Rifle":
+			case "Rifle":
+			case "Crossbow":
+			case "Flamethrower":
 				return WeaponType.ASSAULT_RIFLE;
+			case "Shotgun":
+				return WeaponType.SHOTGUN;
+			case "Sniper Rifle":
+				return WeaponType.SNIPER_RIFLE;
+			case "Bow":
+				return WeaponType.BOW;
+			case "Launcher":
+			case "Blade Launcher":
+				return WeaponType.LAUNCHER;
 			default:
 				throw new BadValueException("Unknown weapon type \"" + value + "\".");
 		}

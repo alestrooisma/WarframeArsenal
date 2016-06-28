@@ -10,7 +10,7 @@ package warframearsenal.enums;
  * @author Ale Strooisma
  */
 public enum TriggerType {
-	SEMI_AUTO(1), AUTO(2);
+	SEMI_AUTO(1), AUTO(2), BURST(3), CHARGE(4);
 	
 	private final int id;
 

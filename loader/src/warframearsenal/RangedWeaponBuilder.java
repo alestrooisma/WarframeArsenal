@@ -13,6 +13,7 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 	private float accuracy = -1;
 	private int magazineSize = -1;
 	private int maxAmmo = -1;
+	//TODO flight speed
 //	private FlightSpeedType flightSpeedType = null;
 //	private float flightSpeed = -1;
 	private float reloadTime = -1;
@@ -52,6 +53,8 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 		switch (key) {
 			case "Noise Level":
 			case "Physical Damage":
+			case "Flight Speed": //TODO don't ignore Flight Speed
+			case "Polarities": //TODO don't ignore Polarities
 				return true;
 			default:
 				return super.isIgnored(key);
@@ -89,9 +92,17 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 	private TriggerType getTriggerType(String value) throws BadValueException {
 		switch (value) {
 			case "Semi-Auto":
+			case "Semi-auto":
+			case "Active":
 				return TriggerType.SEMI_AUTO;
 			case "Auto":
+			case "Held":
+			case "Continuous":
 				return TriggerType.AUTO;
+			case "Burst":
+				return TriggerType.BURST;
+			case "Charge":
+				return TriggerType.CHARGE;
 			default:
 				throw new BadValueException("Unknown trigger type \"" + value + "\".");
 		}
