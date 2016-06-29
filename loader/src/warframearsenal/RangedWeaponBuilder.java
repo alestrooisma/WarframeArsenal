@@ -9,6 +9,7 @@ import warframearsenal.exceptions.BadValueException;
 public class RangedWeaponBuilder extends WeaponBuilder {
 	
 	private TriggerType triggerType = null;
+	private TriggerType alternateTriggerType = null;
 	private float fireRate = -1;
 	private float accuracy = -1;
 	private int magazineSize = -1;
@@ -79,11 +80,12 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 	public boolean save(Connection connection) throws SQLException {
 		Statement statement = connection.createStatement();
 		String query = "INSERT INTO ranged_weapons "
-				+ "(name, mastery_level, slot, type, trigger_type, fire_rate,"
+				+ "(name, mastery_level, slot, type, trigger_type, alt_trigger_type, fire_rate,"
 				+ " accuracy, mag_size, max_ammo, reload_time, impact, puncture,"
 				+ " slash, crit_chance, crit_multiplier, status_chance, secondary_attack) " 
 				+ "VALUES ('" + name + "', " + masteryLevel + ", "+ slot.getId() 
 				+ ", " + type.getId() + ", " + triggerType.getId() + ", " 
+				+ (alternateTriggerType != null ? alternateTriggerType.getId() : "NULL") + ", " 
 				+ fireRate + ", " + accuracy + ", " + magazineSize + ", " 
 				+ maxAmmo + ", " + reloadTime + ", " + impact + ", " 
 				+ puncture + ", " + slash + ", " + critChance + ", "
@@ -121,7 +123,15 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 		@Override
 		public boolean set(String key, String value) throws BadValueException {
 			if (key.equals("Trigger Type")) {
-				triggerType = getTriggerType(value);
+				String[] triggers = value.split("/");
+				if (triggers.length == 1) {
+					triggerType = getTriggerType(triggers[0]);
+				} else if (triggers.length == 2) {
+					triggerType = getTriggerType(triggers[0]);
+					alternateTriggerType = getTriggerType(triggers[1]);
+				} else {
+					throw new BadValueException("Bad number of triggers types: " + triggers.length);
+				}
 				return true;
 			} else {
 				return super.set(key, value);

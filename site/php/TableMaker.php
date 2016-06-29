@@ -15,7 +15,7 @@ class TableMaker {
 		$this->writeRow('Mastery Level', 'mastery_level');
 		$this->writeRow('Weapon Slot', 'slot');
 		$this->writeRow('Weapon Type', 'type');
-		$this->writeRow('Trigger Type', 'trigger_type');
+		$this->writeTriggerTypeRow();
 		$this->writeRow('Fire Rate', 'fire_rate');
 		$this->writeRow('Accuracy', 'accuracy');
 		$this->writeRow('Magazine Size', 'mag_size');
@@ -67,10 +67,16 @@ class TableMaker {
 		echo '</tr>' . PHP_EOL;
 	}
 
-	public function dump() {
-		echo '<pre>';
-		var_dump($this->weapons);
-		echo '</pre>';
+	public function writeTriggerTypeRow() {
+		echo '    <tr><th>Trigger Type</th>';
+		foreach ($this->weapons as $weapon) {
+			echo '<td>' . $weapon->trigger_type;
+			if ($weapon->alt_trigger_type !== NULL) {
+				echo '/' . $weapon->alt_trigger_type;
+			}
+			echo '</td>';
+		}
+		echo '</tr>' . PHP_EOL;
 	}
 
 	public function writeSecondaryAttackRow() {
@@ -89,6 +95,12 @@ class TableMaker {
 			echo '<td><a href="http://warframe.wikia.com/wiki/'.$weapon->name.'">wiki</a></td>';
 		}
 		echo '</tr>' . PHP_EOL;
+	}
+
+	public function dump() {
+		echo '<pre>';
+		var_dump($this->weapons);
+		echo '</pre>';
 	}
 
 }

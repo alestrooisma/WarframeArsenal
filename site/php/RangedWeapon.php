@@ -3,6 +3,7 @@ include 'Weapon.php';
 
 class RangedWeapon extends Weapon {
 	public $trigger_type;
+	public $alt_trigger_type;
 	public $fire_rate;
 	public $accuracy;
 	public $mag_size;
