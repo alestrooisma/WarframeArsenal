@@ -1,4 +1,5 @@
 settings.ini
+*.bkup
 
 loader/nbproject/private/
 loader/build/

@@ -22,7 +22,6 @@ public class WikiPageParser {
 	private final Connection connection;
 	private final ArrayList<String> rangedWeapons = new ArrayList(50);
 	private final ArrayList<String> meleeWeapons = new ArrayList(50);
-	private String currentWeapon;
 
 	public static void main(String[] args) {
 		try {
@@ -33,6 +32,8 @@ public class WikiPageParser {
 			System.err.println("UNCAUGHT EXCEPTION: " + ex);
 			ex.printStackTrace();
 		}
+		ErrorHandler.INSTANCE.printErrorReport();
+		ErrorHandler.INSTANCE.printMissingFieldReport();
 	}
 
 	public WikiPageParser() throws SQLException, IOException {
@@ -94,7 +95,7 @@ public class WikiPageParser {
 	}
 	
 	public void parseWeapon(String weaponName, WeaponBuilder builder) {
-		currentWeapon = weaponName;
+		ErrorHandler.INSTANCE.setCurrentWeapon(weaponName);
 		String url = "http://warframe.wikia.com/wiki/" + weaponName;
 		try {
 			// Download page
@@ -127,9 +128,9 @@ public class WikiPageParser {
 			error("Error while connecting to \"" + url + "\": " + ex.getMessage() 
 					+ "\n    Either \""+ weaponName +"\" is not a weapon or the wiki is unaccessible.");
 		} catch (BadValueException ex) {
-			error("Parsing \""+ weaponName +"\" failed: " + ex.getMessage());
+			error("Parsing failed: " + ex.getMessage());
 		} catch (SQLException ex) {
-			error("Database error - did not save weapon \""+ weaponName +"\": " + ex.getMessage());
+			error("Database error - did not save weapon: " + ex.getMessage());
 		}
 	}
 	
@@ -168,11 +169,12 @@ public class WikiPageParser {
 		}
 	}
 	
+	
 	public void error(String message) {
-		System.err.println(currentWeapon.toUpperCase() + ": " + message);
+		ErrorHandler.INSTANCE.error(message);
 	}
 	
 	public void error(Exception ex) {
-		error(ex.getMessage());
+		ErrorHandler.INSTANCE.error(ex);
 	}
 }

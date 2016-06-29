@@ -33,7 +33,7 @@ public abstract class WeaponBuilder {
 		try {
 			boolean isSet = state.set(key, value);
 			if (!isSet && !isIgnored(key)) {
-				System.out.println(name + ": Ignoring unknown field \"" + key + "\".");
+				ErrorHandler.INSTANCE.unknownField(key);
 			}
 		} catch (NumberFormatException ex) {
 			throw new BadValueException("Failed parsing \"" + value + "\" to a number for field \"" + key + "\" (" + ex.getMessage() + ").", ex);
