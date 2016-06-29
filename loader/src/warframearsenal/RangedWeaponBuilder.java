@@ -167,6 +167,9 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 				case "Reload Time":
 					reloadTime = parseFloat(value, "s");
 					return true;
+				case "Status Chance":
+					statusChance = parseFloat(value, "%");
+					return true;
 				default:
 					return false;
 			}
