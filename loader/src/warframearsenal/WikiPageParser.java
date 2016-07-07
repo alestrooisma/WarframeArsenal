@@ -9,7 +9,10 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import org.ini4j.Ini;
 import org.jsoup.Jsoup;
@@ -21,12 +24,24 @@ import warframearsenal.exceptions.BadValueException;
 public class WikiPageParser {
 	private final String path;
 	private final Connection connection;
+	private final boolean skipExisting;
 	private final ArrayList<String> rangedWeapons = new ArrayList(50);
 	private final ArrayList<String> meleeWeapons = new ArrayList(50);
 	
 	public static void main(String[] args) {
+		boolean skip = false;
+		String path = "";
+		if (args.length == 2 && args[0].equals("--skip")) {
+			skip = true;
+			path = args[1];
+		} else if (args.length == 1) {
+			path = args[0];
+		} else {
+			System.err.println("Bad command line parameters.");
+			System.err.println("Usage: java -jar WarframeArsenal.jar [--skip] DESTINATION");
+		}
 		try {
-			WikiPageParser parser = new WikiPageParser(args[0]);
+			WikiPageParser parser = new WikiPageParser(path, skip);
 //			parser.parseRangedWeapon("Karak Wraith");
 			parser.parseAllWeapons();
 		} catch (SQLException | IOException ex) {
@@ -37,21 +52,34 @@ public class WikiPageParser {
 		ErrorHandler.INSTANCE.printMissingFieldReport();
 	}
 
-	public WikiPageParser(String path) throws SQLException, IOException {
+	public WikiPageParser(String path, boolean skip) throws SQLException, IOException {
 		if (path.charAt(path.length()-1) != '/') {
 			path += '/';
 		}
 		this.path = path;
+		this.skipExisting = skip;
 		Ini ini = new Ini(new File("settings.ini"));
 		connection = DriverManager.getConnection("jdbc:mysql://localhost/arsenal",
 					ini.get("database", "user"), ini.get("database", "password"));
 	}
 	
-	public void parseAllWeapons() {
+	public void parseAllWeapons() throws SQLException {
 		getAllWeapons();
+		
+		PreparedStatement statement = connection.prepareStatement(
+				"SELECT 1 FROM ranged_weapons WHERE name = ?");
 		for (String weapon : rangedWeapons) {
-			parseRangedWeapon(weapon);
+			boolean skip = skipExisting;
+			if (skipExisting) {
+				statement.setString(1, weapon);
+				ResultSet rs = statement.executeQuery();
+				skip = rs.next();
+			}
+			if (!skip) {
+				parseRangedWeapon(weapon);
+			}
 		}
+		
 		//TODO enable melee weapons
 //		for (String weapon : meleeWeapons) {
 //			parseMeleeWeapon(weapon);
