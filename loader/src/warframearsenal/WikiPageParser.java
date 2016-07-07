@@ -69,11 +69,13 @@ public class WikiPageParser {
 		PreparedStatement statement = connection.prepareStatement(
 				"SELECT 1 FROM ranged_weapons WHERE name = ?");
 		for (String weapon : rangedWeapons) {
-			boolean skip = skipExisting;
+			boolean skip;
 			if (skipExisting) {
 				statement.setString(1, weapon);
 				ResultSet rs = statement.executeQuery();
 				skip = rs.next();
+			} else {
+				skip = false;
 			}
 			if (!skip) {
 				parseRangedWeapon(weapon);
