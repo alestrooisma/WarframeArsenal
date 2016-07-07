@@ -57,11 +57,8 @@ public class RangedWeaponBuilder extends WeaponBuilder {
 	@Override
 	public boolean isIgnored(String key) {
 		switch (key) {
-			case "Noise Level":
 			case "Physical Damage":
 			case "Ammo Type":
-			case "Flight Speed": //TODO don't ignore Flight Speed
-			case "Polarities": //TODO don't ignore Polarities
 				return true;
 			default:
 				return super.isIgnored(key);
