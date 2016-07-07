@@ -19,13 +19,14 @@ import org.jsoup.select.Elements;
 import warframearsenal.exceptions.BadValueException;
 
 public class WikiPageParser {
+	private final String path;
 	private final Connection connection;
 	private final ArrayList<String> rangedWeapons = new ArrayList(50);
 	private final ArrayList<String> meleeWeapons = new ArrayList(50);
-
+	
 	public static void main(String[] args) {
 		try {
-			WikiPageParser parser = new WikiPageParser();
+			WikiPageParser parser = new WikiPageParser(args[0]);
 //			parser.parseRangedWeapon("Karak Wraith");
 			parser.parseAllWeapons();
 		} catch (SQLException | IOException ex) {
@@ -36,7 +37,11 @@ public class WikiPageParser {
 		ErrorHandler.INSTANCE.printMissingFieldReport();
 	}
 
-	public WikiPageParser() throws SQLException, IOException {
+	public WikiPageParser(String path) throws SQLException, IOException {
+		if (path.charAt(path.length()-1) != '/') {
+			path += '/';
+		}
+		this.path = path;
 		Ini ini = new Ini(new File("settings.ini"));
 		connection = DriverManager.getConnection("jdbc:mysql://localhost/arsenal",
 					ini.get("database", "user"), ini.get("database", "password"));
@@ -146,7 +151,7 @@ public class WikiPageParser {
 			if (imgs.isEmpty() || imgs.size() > 2) {
 				throw new BadValueException("Unexpected structure in image row");
 			}
-			downloadImage("/var/www/html/warframe/images/" + builder.name, imgs.last().attr("src"));
+			downloadImage(path + "images/" + builder.name, imgs.last().attr("src"));
 		} else if (childClass.equals("category")) {
 			builder.setCategory(child.text());
 		} else if (!childClass.isEmpty()) {
